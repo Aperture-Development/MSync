@@ -1,8 +1,8 @@
---Script Made by: Aperture-Hosting
+-- Script Made by: Aperture-Hosting, edited by Princess Celestia
 -- Web: www.Aperture-Hosting.de
 -- Contact: webmaster@aperture-hosting.de
 
--- TODO move this into settings or somewhere
+-- TODO move this into some shared config file or somewhere
 local tableName = "mrsync"
 
 if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_mysqloo_win32.dll", "LUA" ))then
@@ -43,19 +43,34 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	function MSync.checkTable(server)
 		print("[MSync] Connected to database")
 		print("[MSync] Checking database\n")
-		-- TODO move into the SQL part
-		if(table.HasValue(MSync.Settings.EnabledModules,"MRSync"))then
-			local MRSyncCT  = server:query( "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` (`steamid` varchar(20) NOT NULL, `groups` varchar(30) NOT NULL, `servergroup` varchar(30) NOT NULL)" )
-			MRSyncCT.onError = function(Q,Err) print("[MRSync] Failed to create table: " .. Err) end
+		if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
+			local MRSyncCT  = server:prepare([[
+				CREATE TABLE IF NOT EXISTS `]] .. tableName .. [[` (
+					`steamid` varchar(20) NOT NULL,
+					`groups` varchar(30) NOT NULL,
+					`servergroup` varchar(30) NOT NULL
+				)
+			]])
+			MRSyncCT.onError = function(Q, Err) print("[MRSync] Failed to create table: " .. Err) end
 			MRSyncCT:start()
 		end
-		if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
+		if(table.HasValue(MSync.Settings.EnabledModules, "MBSync")) then
 			// SteamID; Banning Admin;Reason;Ban Date;Duration
-			local MBSyncCT  = server:query( "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` (`steamid` varchar(20) NOT NULL,`nickname` varchar(30) NOT NULL, `admin` varchar(30) NOT NULL, `reason` varchar(30) NOT NULL,`ban_date` INT NOT NULL ,`duration` INT NOT NULL, UNIQUE KEY `steamid_UNIQUE` (`steamid`))" )
-			MBSyncCT.onError = function(Q,Err) print("[MBSync] Failed to create table: " .. Err) end
+			local MBSyncCT  = server:prepare([[
+				CREATE TABLE IF NOT EXISTS `]] .. tableName .. [[` (
+					`steamid` varchar(20) NOT NULL,
+					`nickname` varchar(30) NOT NULL,
+					`admin` varchar(30) NOT NULL,
+					`reason` varchar(30) NOT NULL,
+					`ban_date` INT NOT NULL,
+					`duration` INT NOT NULL,
+					UNIQUE KEY `steamid_UNIQUE` (`steamid`)
+				)
+			]])
+			MBSyncCT.onError = function(Q, Err) print("[MBSync] Failed to create table: " .. Err) end
 			MBSyncCT:start()
 		end
-		/*if(table.HasValue(MSync.Settings.EnabledModules,"MPSync"))then
+		/*if(table.HasValue(MSync.Settings.EnabledModules, "MPSync")) then
 			//Ranks
 			//Permissions
 			//Rank ID and Permission ID
