@@ -1,3 +1,5 @@
+-- TODO encapsulate os.date() formatting
+
 if CLIENT then
 	print("loaded")
 	--Declaring MSync Variable
@@ -34,7 +36,7 @@ if CLIENT then
 	--##NET RECIEVER##
 	
 	net.Receive("MSyncRevertSettings", function( len, ply )
-			MSync.Chat(Color(255,255,255),"Retrived Data from Server! (A1)")
+			MSync.Chat(Color(255,255,255),"Retrieved data from server! (A1)")
 			MSync.LocalSettings = net.ReadTable()
 			MSync.RefreshPanel()
 			
@@ -45,7 +47,7 @@ if CLIENT then
 	end)
 	
 	net.Receive("MSyncRevertBans", function( len, ply )
-			MSync.Chat(Color(255,255,255),"Retrived Bans from Server! (A1)")
+			MSync.Chat(Color(255,255,255),"Retrieved bans from server! (A1)")
 			MSync.LocalBans = net.ReadTable()
 			AddBanTable()
 			
@@ -53,7 +55,7 @@ if CLIENT then
 	--##NET TRANSMITTER FUNCTIONS##
 	
 	function MSync.SendSettings()
-		MSync.Chat(Color(255,255,255),"Sending Data to Server! (A1)")
+		MSync.Chat(Color(255,255,255),"Sending data to server! (A1)")
 		net.Start( "MSyncTableSend" )
 			net.WriteTable( MSync.LocalSettings )
 			net.WriteEntity( LocalPlayer() )
@@ -61,14 +63,14 @@ if CLIENT then
 	end
 	
 	function MSync.GetBans()
-		MSync.Chat(Color(255,255,255),"Getting Bans from Server! (A1)")
+		MSync.Chat(Color(255,255,255),"Retrieving bans from server! (A1)")
 		net.Start( "MSyncGetBans" )
 			net.WriteEntity( LocalPlayer() )
 		net.SendToServer()
 	end
 	
 	function MSync.GetSettings()
-		MSync.Chat(Color(255,255,255),"Retriving Data from Server! (A1)")
+		MSync.Chat(Color(255,255,255),"Retrieving data from server! (A1)")
 		net.Start( "MSyncGetSettings" )
 			net.WriteEntity( LocalPlayer() )
 		net.SendToServer()

@@ -9,14 +9,20 @@ MSync.MRsyncVersion = "A 1.3"
 MSync.xgui_panelVersion = "A 1.5"
 
 concommand.Add( "msync_version", function( ply, cmd, args )
-	print("[MSync] Version: \nMSync version: "..MSync.version.." \nMBSync version: "..MSync.MBsyncVersion.." \nMRSync version: "..MSync.MRsyncVersion.." \nMSync XGUI version: "..MSync.xgui_panelVersion)
-end )
+	print(
+		"[MSync] Version:\n" ..
+		"MSync version: " .. MSync.version .. "\n" ..
+		"MBSync version: " .. MSync.MBsyncVersion .. "\n" ..
+		"MRSync version: " .. MSync.MRsyncVersion .. "\n" ..
+		"MSync XGUI version: " .. MSync.xgui_panelVersion
+	)
+end)
 
 //Load Function on Enable of the Addon
 function MSync.load()
 
-	if not (file.Exists( "msync/settings.txt", "DATA" ))then
-		print("[MSync] Writting Settings File")
+	if not (file.Exists( "msync/settings.txt", "DATA" )) then
+		print("[MSync] Writting settings file")
 		file.CreateDir( "msync" )
 		
 		MSync.Settings = {
@@ -50,7 +56,7 @@ function MSync.load()
 		file.Write( "msync/settings.txt", util.TableToJSON( MSync.Settings, true ))
 		
 	elseif(file.Exists( "msync/settings.txt", "DATA" ))then
-		print("[MSync] Getting Settings File")
+		print("[MSync] Getting settings file")
 		MSync.Settings = util.JSONToTable( file.Read( "msync/settings.txt", "DATA" ))
 		
 	end
@@ -75,18 +81,19 @@ end
 //Read Groups for Permissions
 
 
+-- TODO duplicate code here
 
 //Send Settings to Players
 net.Receive("MSyncGetSettings", function( len, ply )
 			
 			local plygroup = ply:GetUserGroup()
-			if(ULib.ucl.query(ply,"xgui_msync"))then
+			if(ULib.ucl.query(ply,"xgui_msync")) then
 				net.Start("MSyncRevertSettings")
 					net.WriteTable( MSync.Settings )
 				net.Send(ply)
 			else
-				MSync.SendMessageToAdmins(Color(255,255,255),"WARNING: Player: "..ply:GetName().." Tryed to Exploit the Server and got Kicked! (A2)")
-				ply:Kick( "[MSync] CSLua: Tryed to Force get Server Settings Table (A2)" )
+				MSync.SendMessageToAdmins(Color(255,255,255),"WARNING: Player: "..ply:GetName().." tried to exploit the server and got kicked! (A2)")
+				ply:Kick( "[MSync] CSLua: Tried to force-get server settings table (A2)" )
 			end
 			
 end)
@@ -101,8 +108,8 @@ net.Receive("MSyncGetBans", function( len, ply )
 					net.WriteTable( MSync.Bans )
 				net.Send(ply)
 			else
-				MSync.SendMessageToAdmins(Color(255,255,255),"WARNING: Player: "..ply:GetName().." Tryed to Exploit the Server and got Kicked! (A2)")
-				ply:Kick( "[MSync] CSLua: Tryed to Force get Server Settings Table (A2)" )
+				MSync.SendMessageToAdmins(Color(255,255,255),"WARNING: Player: "..ply:GetName().." tried to exploit the server and got kicked! (A2)")
+				ply:Kick( "[MSync] CSLua: Tried to force get server settings table (A2)" )
 			end
 			
 end)
@@ -114,8 +121,8 @@ net.Receive("MSyncTableSend", function( len, ply )
 			MSync.Settings = net.ReadTable()
 			MSync.SaveSettings()
 		else
-			MSync.SendMessageToAdmins(Color(255,255,255),"WARNING: Player: "..ply:GetName().." Tryed to Exploit the Server and got Kicked! (A2)")
-			ply:Kick( "[MSync] CSLua: Tryed to Force Send Settings Table (A2)" )
+			MSync.SendMessageToAdmins(Color(255,255,255),"WARNING: Player: "..ply:GetName().." tried to exploit the server and got kicked! (A2)")
+			ply:Kick( "[MSync] CSLua: Tried to force-send settings table (A2)" )
 		end
 end)
 

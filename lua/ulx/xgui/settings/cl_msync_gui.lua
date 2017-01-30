@@ -22,7 +22,7 @@ end
 		MSync.Modules.disabledModulesList:AddColumn( "Disabled Modules" )
 		MSync.Modules.enabledModulesList:SetMultiSelect( false )
 		MSync.Modules.disabledModulesList:SetMultiSelect( false )
-		MSync.Modules.DescriptionText = xlib.makelabel{ x=180, y=235, w=300, wordwrap=true, label="Description: To enable an module select the Module in the Disabled modules list and press '<-' to disable a Module select it in the Enabled Modules list and press '->'", parent=MSync.back }
+		MSync.Modules.DescriptionText = xlib.makelabel{ x=180, y=235, w=300, wordwrap=true, label="To enable a module, select the module in the Disabled modules list and press '<-'. To disable a module, select it in the Enabled Modules list and press '->'.", parent=MSync.back }
 	end
 
 	function MSync.MySQL.init()
@@ -39,7 +39,7 @@ end
 		MSync.MySQL.Database 		= xlib.maketextbox{ parent=MSync.back, x=165, y=225, w=160, h=25, disabled=false, visible=true}
 		MSync.MySQL.Servergrptext 	= xlib.makelabel{ x=165, y=255, label="Servergroup:", parent=MSync.back }
 		MSync.MySQL.Servergrp 		= xlib.maketextbox{ parent=MSync.back, x=165, y=270, w=160, h=25, disabled=false, visible=true}
-		MSync.MySQL.DescriptionText = xlib.makelabel{ x=350, y=10, w=170, wordwrap=true, label="Description: Set here your MySQL Settings.\n+HOST+ As Host set your SQL Providers Host IP.+PORT+ As Port set your MySQL Servers Port.\n+USERNAME+ As Username set your Databases Username to access the Database.\n+PASSWORD+ As Password set the Password for the Database User.\n+DATABASE+ As Database set the Sheme Name of your Database. \n+SERVERGROUP+ As servergroup set your Servers Group (Example: DarkRP or sandbox)", parent=MSync.back }
+		MSync.MySQL.DescriptionText = xlib.makelabel{ x=350, y=10, w=170, wordwrap=true, label="Set your MySQL settings here.\nHOST: Hostname or IP address of the SQL server.\nPORT: Port of the MySQL server.\nUSERNAME: Username for the access to the database.\nPASSWORD: Password for the MySQL user.\nDATABASE: Name of the MySQL database to use.\nSERVERGROUP: Name of the server group this server belongs to (for example DarkRP or sandbox).", parent=MSync.back }
 		
 		/* Currently not Working! Stay tuned for Updates!
 		MSync.MySQL.connectText		= xlib.makelabel{ x=360, y=265, label="Status: Unknown", parent=MSync.back }
@@ -68,11 +68,11 @@ end
 		MSync.MRSync.IgnoreTextBox			= xlib.maketextbox{ parent=MSync.back, x=160, y=220, w=120, h=25, disabled=false, visible=true}
 		MSync.MRSync.AllServerTextBox		= xlib.maketextbox{ parent=MSync.back, x=320, y=220, w=120, h=25, disabled=false, visible=true}
 		
-		MSync.MRSync.Descriptiontext 		= xlib.makelabel{ x=475, y=30, w=100, wordwrap=true, label="Description: Ignored Ranks: this is the list of ranks which are not be saved in the mysql table.\n All Server Ranks: this are the ranks which ignore the Servergroup and are synced throught all servers", parent=MSync.back }
-		MSync.MRSync.Descriptiontext2 		= xlib.makelabel{ x=160, y=250, w=340, wordwrap=true, label="Description: Enter the rank and press '+' to add it to the list. To remove select in the table the entry you want to remove and press '-'", parent=MSync.back }
+		MSync.MRSync.Descriptiontext 		= xlib.makelabel{ x=475, y=30, w=100, wordwrap=true, label="Ignored ranks: This is a list of ranks which are not going to be saved in the MySQL table.\nAll servers ranks: These are ranks which ignore the Servergroup and are synced across all servers", parent=MSync.back }
+		MSync.MRSync.Descriptiontext2 		= xlib.makelabel{ x=160, y=250, w=340, wordwrap=true, label="Description: Enter the rank and press '+' to add it to the list. To remove an entry, select it in the table and press '-'.", parent=MSync.back }
 		
-		MSync.MRSync.IgnoreTable:AddColumn( "Ignored Ranks" ) 
-		MSync.MRSync.AllServerTable:AddColumn( "All Server Ranks" ) 
+		MSync.MRSync.IgnoreTable:AddColumn( "Ignored ranks" ) 
+		MSync.MRSync.AllServerTable:AddColumn( "All servers ranks" ) 
 		MSync.MRSync.IgnoreTable:SetMultiSelect( false )
 		MSync.MRSync.AllServerTable:SetMultiSelect( false )
 	end
@@ -82,12 +82,12 @@ end
 		
 		MSync.MBSync.Table:AddColumn( "Name/SteamID" ) 
 		MSync.MBSync.Table:AddColumn( "Banned by" ) 
-		MSync.MBSync.Table:AddColumn( "Unban Date" ) 
+		MSync.MBSync.Table:AddColumn( "Unban date" ) 
 		MSync.MBSync.Table:AddColumn( "Reason" ) 
 		MSync.MBSync.SearchBox			= xlib.maketextbox{ parent=MSync.back, x=160, y=5, w=150, h=25, disabled=false, visible=true}
 		MSync.MBSync.Sync				= xlib.makebutton{ parent=MSync.back, x=370, y=5, w=50, h=25, label="Sync", disabled=false }
 		MSync.MBSync.SearchButton		= xlib.makebutton{ parent=MSync.back, x=315, y=5, w=50, h=25, label="Search", disabled=false }
-		MSync.MBSync.Description		= xlib.makelabel{ x=425, y=5, w=150, wordwrap=true, label="Description: You need to press 'Sync' to get the bans.", parent=MSync.back }
+		MSync.MBSync.Description		= xlib.makelabel{ x=425, y=5, w=150, wordwrap=true, label="Press 'Sync' to retrieve the bans.", parent=MSync.back }
 
 	end
 
@@ -144,7 +144,7 @@ end
 				if not(MSync.MRSync.AllServerTable:GetSelected()[1]:GetValue(1)==nil)then
 					MSync.MRSync.AllServerTable:RemoveLine(MSync.MRSync.AllServerTable:GetSelectedLine())	
 				else
-					MSync.Chat(Color(255,0,0),"ERROR: No Rank Selected! (A3)")
+					MSync.Chat(Color(255,0,0),"ERROR: No rank selected! (A3)")
 				end
 			end
 			
@@ -157,7 +157,7 @@ end
 				if not(MSync.MRSync.IgnoreTable:GetSelected()[1]:GetValue(1)==nil)then
 					MSync.MRSync.IgnoreTable:RemoveLine(MSync.MRSync.IgnoreTable:GetSelectedLine())	
 				else
-					MSync.Chat(Color(255,0,0),"ERROR: No Rank Selected! (A3)")
+					MSync.Chat(Color(255,0,0),"ERROR: No rank selected! (A3)")
 				end
 			end
 		elseif line:GetValue(1) == "MBSync" then
@@ -182,7 +182,7 @@ end
 			MSync.MBSync.Table.OnRowRightClick = function( self, LineID, line )
 				local menu = DermaMenu()
 				menu:SetSkin(xgui.settings.skin)
-				/*menu:AddOption( "Edit Ban...", function()
+				/*menu:AddOption( "Edit ban...", function()
 					if not line:IsValid() then return end
 					xgui.ShowBanWindow( nil, line:GetValue( 5 ), nil, true, xgui.data.bans.cache[LineID] )
 				end )*/
@@ -209,7 +209,7 @@ end
 					MSync.Modules.enabledModulesList:AddLine( MSync.Modules.disabledModulesList:GetSelected()[1]:GetValue(1))
 					MSync.Modules.disabledModulesList:RemoveLine(MSync.Modules.disabledModulesList:GetSelectedLine())
 				else
-					print("[MSync] ERROR: No line Selected! (A3)")
+					print("[MSync] ERROR: No line selected! (A3)")
 				end
 			end
 
@@ -218,7 +218,7 @@ end
 					MSync.Modules.disabledModulesList:AddLine( MSync.Modules.enabledModulesList:GetSelected()[1]:GetValue(1))
 					MSync.Modules.enabledModulesList:RemoveLine(MSync.Modules.enabledModulesList:GetSelectedLine())
 				else
-					MSync.Chat(Color(255,0,0),"ERROR: No line Selected! (A3)")
+					MSync.Chat(Color(255,0,0),"ERROR: No line selected! (A3)")
 				end
 			end
 		
@@ -273,7 +273,7 @@ end
 			end
 		else
 			MSync.SendSettings()
-			MSync.Chat(Color(255,0,0),"No Option Selected! (A3)")
+			MSync.Chat(Color(255,0,0),"No option selected! (A3)")
 		end
 	end
 
@@ -306,7 +306,7 @@ end
 			}
 		}
 		MSync.RefreshPanel()
-		MSync.Chat(Color(255,128,64),"Reset Settings (A1)")
+		MSync.Chat(Color(255,128,64),"Reset settings (A1)")
 	end
 
 	MSync.refreshbutton.DoClick = function()
