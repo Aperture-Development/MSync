@@ -1,5 +1,20 @@
-if(table.HasValue(MSync.Settings.EnabledModules,"MRSync"))then	
+if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then	
 	print("[MRSync] Loading...")
+
+	function MSync.CreateRanksTable()
+		local MRSyncCT  = server:prepare([[
+			CREATE TABLE IF NOT EXISTS `]] .. tableName .. [[` (
+				`steamid` varchar(20) NOT NULL,
+				`groups` varchar(30) NOT NULL,
+				`servergroup` varchar(30) NOT NULL
+			)
+		]])
+		MRSyncCT.onError = function(Q, Err) print("[MRSync] Failed to create table: " .. Err) end
+		MRSyncCT:start()
+		-- TODO consider better solution than waiting here (can severly lag the server)
+		MRSyncCT:wait()
+	end
+
 	//Function to load a Players Rank
 	function MSync.LoadRank(ply)
 		print("[MRSync] Loading player rank...")

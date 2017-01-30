@@ -13,7 +13,7 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	local function mrsyncconnect()
 		require("mysqloo")
 		MSync.DB = mysqloo.connect(MSync.Settings.mysql.Host, MSync.Settings.mysql.Username, MSync.Settings.mysql.Password, MSync.Settings.mysql.Database, MSync.Settings.mysql.Port)
-		MSync.DB.onConnected = MSync.checkTable
+		MSync.DB.onConnected = MSync.checkTables
 		MSync.DB.onConnectionFailed = MSync.DBError
 		MSync.DB:connect()
 		
@@ -30,7 +30,7 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	end
 	*/
 	function MSync.DBError()
-			Msg("[MSync] Connection to database failed\n")
+		Msg("[MSync] Connection to database failed\n")
 	end
 	
 	function checkQuery(query)
@@ -40,35 +40,16 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	 
 	local num_rows = 0
 	
-	function MSync.checkTable(server)
+	function MSync.checkTables(server)
 		print("[MSync] Connected to database")
 		print("[MSync] Checking database\n")
 		if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
-			local MRSyncCT  = server:prepare([[
-				CREATE TABLE IF NOT EXISTS `]] .. tableName .. [[` (
-					`steamid` varchar(20) NOT NULL,
-					`groups` varchar(30) NOT NULL,
-					`servergroup` varchar(30) NOT NULL
-				)
-			]])
-			MRSyncCT.onError = function(Q, Err) print("[MRSync] Failed to create table: " .. Err) end
-			MRSyncCT:start()
+			include( "msync/mrsync_sql.lua" )
+			MSync.CreateRanksTable()
 		end
 		if(table.HasValue(MSync.Settings.EnabledModules, "MBSync")) then
-			// SteamID; Banning Admin;Reason;Ban Date;Duration
-			local MBSyncCT  = server:prepare([[
-				CREATE TABLE IF NOT EXISTS `]] .. tableName .. [[` (
-					`steamid` varchar(20) NOT NULL,
-					`nickname` varchar(30) NOT NULL,
-					`admin` varchar(30) NOT NULL,
-					`reason` varchar(30) NOT NULL,
-					`ban_date` INT NOT NULL,
-					`duration` INT NOT NULL,
-					UNIQUE KEY `steamid_UNIQUE` (`steamid`)
-				)
-			]])
-			MBSyncCT.onError = function(Q, Err) print("[MBSync] Failed to create table: " .. Err) end
-			MBSyncCT:start()
+			include( "msync/mbsync_sql.lua" )
+			MSync.CreateBansTable()
 		end
 		/*if(table.HasValue(MSync.Settings.EnabledModules, "MPSync")) then
 			//Ranks
@@ -80,14 +61,12 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	end
 	 
 	mrsyncconnect()
-	 
-	include( "msync/mrsync_sql.lua" )
-	include( "msync/mbsync_sql.lua" )
+		
 	include( "msync/mbsync_chat.lua" )
 	include( "msync/msync_hooks.lua" )
 	
 else
-	print('[MSync] WARNING! You need MySQLoo for this addon to work!')
+	print('[MSync] WARNING! You need MySQLoo v9 or higher for this addon to work!')
 	print('[MSync] Get it from here: https://facepunch.com/showthread.php?t=1515853')
 	print('[MSync] Here are installation instructions:')
 	print('[MSync] https://help.serenityservers.net/index.php?title=Garrysmod:How_to_install_mysqloo_or_tmysql')
