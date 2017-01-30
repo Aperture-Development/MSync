@@ -10,7 +10,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		QbanAdd.onError = function(Q,E) print("Q1") print(E) end
 		QbanAdd:start()
 		QbanAdd:wait()
-		ply:Kick("[MBSync] You are Banned! \nReason: "..reason.."\nDuration: "..duration.." Minutes \nBanned by: "..BanningAdmin.." \nUnban Date: "..os.date( "%H:%M - %d/%m/%Y" ,(duration + os.time())))
+		ply:Kick("[MBSync] You are Banned! \nReason: "..reason.."\nDuration: "..duration.." \nBanned by: "..BanningAdmin.." \nUnban Date: "..os.date( "%H:%M - %d/%m/%Y" ,(duration + os.time())))
 	end
 	
 	function MSync.AddBanID(ply,reason,admin,duration)

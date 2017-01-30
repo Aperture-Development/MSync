@@ -12,7 +12,7 @@ concommand.Add( "msync_version", function( ply, cmd, args )
 	print("[MSync] Version: \nMSync version: "..MSync.version.." \nMBSync version: "..MSync.MBsyncVersion.." \nMRSync version: "..MSync.MRsyncVersion.." \nMSync XGUI version: "..MSync.xgui_panelVersion)
 end )
 
---Load Function on Enable of the Addon
+//Load Function on Enable of the Addon
 function MSync.load()
 
 	if not (file.Exists( "msync/settings.txt", "DATA" ))then
@@ -72,11 +72,11 @@ function MSync.SaveSettings()
 	file.Write( "msync/settings.txt", util.TableToJSON( MSync.Settings, true ))
 end
 
---Read Groups for Permissions
+//Read Groups for Permissions
 
 
 
---Send Settings to Players
+//Send Settings to Players
 net.Receive("MSyncGetSettings", function( len, ply )
 			
 			local plygroup = ply:GetUserGroup()
@@ -91,7 +91,7 @@ net.Receive("MSyncGetSettings", function( len, ply )
 			
 end)
 
---Get The Ban Table
+//Get The Ban Table
 net.Receive("MSyncGetBans", function( len, ply )
 			
 			local plygroup = ply:GetUserGroup()
@@ -106,7 +106,7 @@ net.Receive("MSyncGetBans", function( len, ply )
 			end
 			
 end)
---Get Table and save the Settings
+//Get Table and save the Settings
 net.Receive("MSyncTableSend", function( len, ply )
 
 		local plygroup = ply:GetUserGroup()

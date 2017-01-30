@@ -3,7 +3,7 @@ if CLIENT then
 	--Declaring MSync Variable
 	MSync = MSync or {}
 	MSync.RFP = false
-	MSync.LocalSettings = MSync.LocalSettings or { --Set MSync.LocalSettings to MSync.LocalSettings or to Default Settings to Prevent Empty MSync.LocalSettings
+	MSync.LocalSettings = MSync.LocalSettings or { //Set MSync.LocalSettings to MSync.LocalSettings or to Default Settings to Prevent Empty MSync.LocalSettings
 			Servergroup = "Default",
 			EnabledModules = {
 				"MRSync"

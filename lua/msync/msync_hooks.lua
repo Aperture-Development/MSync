@@ -8,13 +8,13 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		local MBSyncTbl = MSync.CheckIfBanned(util.SteamIDFrom64(steamID64))
 		local time = {}
 		if (MBSyncTbl==true) then
-			return nil
+			return true
 		else
 			if(MBSyncTbl.duration<=0)then
 				time.duration = "Permanent"
 				time.unban = "Never"
 			else
-				time.duration 	= (MBSyncTbl.duration/60).." Minutes "
+				time.duration 	= MBSyncTbl.duration.." Minutes "
 				time.unban		= os.date( "%H:%M - %d/%m/%Y" ,(MBSyncTbl.duration + MBSyncTbl.ban_date))
 			end
 			
@@ -32,7 +32,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 				time.duration = "Permanent"
 				time.unban = "Never"
 			else
-				time.duration 	= (MBSyncTbl.duration/60).." Minutes "
+				time.duration 	= MBSyncTbl.duration.." Minutes "
 				time.unban		= os.date( "%H:%M - %d/%m/%Y" ,(MBSyncTbl.duration + MBSyncTbl.ban_date))
 			end
 			print("[MBSync] Backup Check: "..ply:GetName().." is Banned!")
