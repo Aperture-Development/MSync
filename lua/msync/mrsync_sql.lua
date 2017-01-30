@@ -1,51 +1,37 @@
 if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then	
 	print("[MRSync] Loading...")
 
-	function MSync.CreateRanksTable()
-		local MRSyncCT  = server:prepare([[
-			CREATE TABLE IF NOT EXISTS `]] .. tableName .. [[` (
-				`steamid` varchar(20) NOT NULL,
-				`groups` varchar(30) NOT NULL,
-				`servergroup` varchar(30) NOT NULL
-			)
-		]])
-		MRSyncCT.onError = function(Q, Err) print("[MRSync] Failed to create table: " .. Err) end
-		MRSyncCT:start()
-		-- TODO consider better solution than waiting here (can severly lag the server)
-		MRSyncCT:wait()
-	end
-
 	//Function to load a Players Rank
 	function MSync.LoadRank(ply)
 		print("[MRSync] Loading player rank...")
-			local queryQ = MSync.DB:query("SELECT * FROM `mrsync` WHERE steamid = '" .. ply:SteamID() .. "' AND (`servergroup` = '" .. MSync.Settings.Servergroup .. "' OR `servergroup` = 'allserver')")
-			queryQ.onData = function(Q,D)
-					queryQ.onSuccess = function(q)
-						if checkQuery(q) then
-							print("[MRSync] "..ply:GetName().." Status: "..tostring(ply:IsUserGroup(D.groups)))
-							
-							if( ply:IsUserGroup(D.groups))then
-							
-								print("[MRSync] User "..ply:GetName().." is already in their group!")
-								
-							elseif(D.groups=="user")then
-							
-								RunConsoleCommand( 'ulx', 'removeuserid', ply:SteamID() )
-								print("[MRSync] Adding "..ply:GetName().." to group "..D.groups)
-								MSync.PrintToAll(Color(255,255,255),"Adding "..ply:GetName().." to group "..D.groups)
-								
-							else
-							
-								print("[MRSync] Adding "..ply:GetName().." to group "..D.groups)
-								RunConsoleCommand( 'ulx', 'adduserid', ply:SteamID(),D.groups )
-								MSync.PrintToAll(Color(255,255,255),"Adding "..ply:GetName().." to group "..D.groups)
-								
-							end
-						end
+		local queryQ = MSync.DB:query("SELECT * FROM `mrsync` WHERE steamid = '" .. ply:SteamID() .. "' AND (`servergroup` = '" .. MSync.Settings.Servergroup .. "' OR `servergroup` = 'allserver')")
+		queryQ.onData = function(Q,D)
+			queryQ.onSuccess = function(q)
+				if checkQuery(q) then
+					print("[MRSync] "..ply:GetName().." Status: "..tostring(ply:IsUserGroup(D.groups)))
+					
+					if( ply:IsUserGroup(D.groups)) then
+					
+						print("[MRSync] User "..ply:GetName().." is already in their group!")
+						
+					elseif(D.groups=="user") then
+					
+						RunConsoleCommand( 'ulx', 'removeuserid', ply:SteamID() )
+						print("[MRSync] Adding "..ply:GetName().." to group "..D.groups)
+						MSync.PrintToAll(Color(255,255,255),"Adding "..ply:GetName().." to group "..D.groups)
+						
+					else
+					
+						print("[MRSync] Adding "..ply:GetName().." to group "..D.groups)
+						RunConsoleCommand( 'ulx', 'adduserid', ply:SteamID(),D.groups )
+						MSync.PrintToAll(Color(255,255,255),"Adding "..ply:GetName().." to group "..D.groups)
+						
 					end
+				end
 			end
-			queryQ.onError = function(Q,E) print("Q1") print(E) end
-			queryQ:start()
+		end
+		queryQ.onError = function(Q,E) print("Q1") print(E) end
+		queryQ:start()
 
 	end
 	// Function to save a Single user 

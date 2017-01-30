@@ -1,32 +1,12 @@
 if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then	
 	print("[MBSync] Loading...")
 	-- TODO duplicate code in AddBan and AddBanID - can be wrapped
-	-- TODO move this somewhere in shared config maybe?
-	MSync.TableName = "mbsync"
-	
-	function MSync.CreateBansTable()
-		local MBSyncCT  = server:prepare([[
-			CREATE TABLE IF NOT EXISTS `]] .. MSync.TableName .. [[` (
-				`steamid` varchar(20) NOT NULL,
-				`nickname` varchar(30) NOT NULL,
-				`admin` varchar(30) NOT NULL,
-				`reason` varchar(30) NOT NULL,
-				`ban_date` INT NOT NULL,
-				`duration` INT NOT NULL,
-				UNIQUE KEY `steamid_UNIQUE` (`steamid`)
-			)
-		]])
-		MBSyncCT.onError = function(Q, Err) print("[MBSync] Failed to create table: " .. Err) end
-		MBSyncCT:start()
-		-- TODO consider a better solution than waiting here (it can severaly lag the server)
-		MBSyncCT:wait()
-	end
 
 	function MSync.AddBan(ply,reason,admin,duration)
 		local BanPlayer = ply:GetName()
 		local BanningAdmin = admin:GetName()
 		local QbanAdd = MSync.DB:prepare([[
-			INSERT INTO `]] .. MSync.TableName .. [[` (`steamid`, `admin`, `nickname`, `reason`, `ban_date`, `duration`)
+			INSERT INTO `]] .. MSync.TableNameBans .. [[` (`steamid`, `admin`, `nickname`, `reason`, `ban_date`, `duration`)
 			VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `admin`=VALUES(admin), `reason`=VALUES(reason), `ban_date`=VALUES(ban_date), `duration`=VALUES(duration)
 		]])
 		QbanAdd:setString(1, ply:SteamID())
@@ -34,7 +14,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then
 		QbanAdd:setString(3, ply:GetName())
 		QbanAdd:setString(4, reason)
 		QbanAdd:setNumber(5, os.time())
-		QbanAdd:setNumber(6, tonumber(duration) * 60))
+		QbanAdd:setNumber(6, tonumber(duration) * 60)
 		QbanAdd.onSuccess = function(q)
 			MSync.PrintToAll(Color(200,0,0), "Player: " .. BanPlayer .. " got banned for reason: " .. reason .. " by: " .. BanningAdmin .. " for: " .. duration .. " minutes")
 		end
@@ -53,7 +33,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then
 	
 	function MSync.AddBanID(ply,reason,admin,duration)
 		local QbanIDAdd = MSync.DB:prepare([[
-			INSERT INTO `]] .. MSync.TableName .. [[` (`steamid`, `admin`,`nickname`, `reason`, `ban_date`, `duration`) VALUES (?, ?, ?, ?, ?, ?)
+			INSERT INTO `]] .. MSync.TableNameBans .. [[` (`steamid`, `admin`,`nickname`, `reason`, `ban_date`, `duration`) VALUES (?, ?, ?, ?, ?, ?)
 			ON DUPLICATE KEY UPDATE `admin`=VALUES(admin), `reason`=VALUES(reason),`ban_date`=VALUES(ban_date),`duration`=VALUES(duration)
 		]])
 		QbanIDAdd:setString(1, ply)
@@ -71,7 +51,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then
 	end
 	
 	function MSync.RemoveBan(ply,admin)
-		local QremBan = MSync.DB:prepare("DELETE FROM `" .. MSync.TableName .. "` WHERE `steamid` = ?")
+		local QremBan = MSync.DB:prepare("DELETE FROM `" .. MSync.TableNameBans .. "` WHERE `steamid` = ?")
 		QremBan:setString(1, ply)
 		QremBan.onSuccess = function(q)
 			MSync.PrintToAll(Color(33,255,0), "Player: " .. ply .. " got unbanned by: " .. admin:GetName())
@@ -81,7 +61,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then
 		
 	
 	function MSync.CheckBan(ply,admin)
-		local QcheckBan = MSync.DB:prepare("SELECT * FROM `" .. MSync.TableName .. "` WHERE steamid = ?")
+		local QcheckBan = MSync.DB:prepare("SELECT * FROM `" .. MSync.TableNameBans .. "` WHERE steamid = ?")
 		QcheckBan:setString(1, ply)
 		
 		QcheckBan.onError = function(Q,E) print("Q1") print(E) end
@@ -112,7 +92,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then
 	end
 	
 	function MSync.GetBans()
-		local QgetBans = MSync.DB:prepare("SELECT * FROM `" .. MSync.TableName .. "`")
+		local QgetBans = MSync.DB:prepare("SELECT * FROM `" .. MSync.TableNameBans .. "`")
 		QgetBans:start()
 		-- TODO why not use onSuccess instead of waiting?
 		QgetBans:wait()
@@ -120,7 +100,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MBSync"))then
 	end
 	
 	function MSync.CheckIfBanned(ply)
-		local QcheckIfBan = MSync.DB:prepare("SELECT * FROM `" .. MSync.TableName .. "` WHERE steamid = ?")
+		local QcheckIfBan = MSync.DB:prepare("SELECT * FROM `" .. MSync.TableNameBans .. "` WHERE steamid = ?")
 		QcheckIfBan:setString(1, ply)
 
 		local banTable = nil
