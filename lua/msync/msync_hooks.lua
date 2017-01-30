@@ -10,7 +10,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		local MBSyncTbl = MSync.CheckIfBanned(util.SteamIDFrom64(steamID64))
 		local time = {}
 		if (MBSyncTbl==true) then
-			return true
+			return
 		else
 			if(MBSyncTbl.duration<=0)then
 				time.duration = "Permanent"
