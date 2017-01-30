@@ -2,6 +2,9 @@
 -- Web: www.Aperture-Hosting.de
 -- Contact: webmaster@aperture-hosting.de
 
+-- TODO move this into settings or somewhere
+local tableName = "mrsync"
+
 if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_mysqloo_win32.dll", "LUA" ))then
 	MSync = MSync or {}
 	local ulxsql = ulxsql or {}
@@ -32,36 +35,33 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	
 	function checkQuery(query)
 		local playerInfo = query:getData()
-		if playerInfo[1] ~= nil then
-					return true
-		else
-					return false
-		end
+		return playerInfo[1] ~= nil
 	end
 	 
 	local num_rows = 0
 	
 	function MSync.checkTable(server)
-			print("[MSync] Connected to database")
-			print("[MSync] Checking database\n")
-			if(table.HasValue(MSync.Settings.EnabledModules,"MRSync"))then
-				local MRSyncCT  = server:query( "CREATE TABLE IF NOT EXISTS `mrsync` (`steamid` varchar(20) NOT NULL, `groups` varchar(30) NOT NULL, `servergroup` varchar(30) NOT NULL)" )
-				MRSyncCT.onError = function(Q,Err) print("[MRSync] Failed to create table: " .. Err) end
-				MRSyncCT:start()
-			end
-			if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
-				// SteamID; Banning Admin;Reason;Ban Date;Duration
-				local MBSyncCT  = server:query( "CREATE TABLE IF NOT EXISTS `mbsync` (`steamid` varchar(20) NOT NULL,`nickname` varchar(30) NOT NULL, `admin` varchar(30) NOT NULL, `reason` varchar(30) NOT NULL,`ban_date` INT NOT NULL ,`duration` INT NOT NULL, UNIQUE KEY `steamid_UNIQUE` (`steamid`))" )
-				MBSyncCT.onError = function(Q,Err) print("[MBSync] Failed to create table: " .. Err) end
-				MBSyncCT:start()
-			end
-			/*if(table.HasValue(MSync.Settings.EnabledModules,"MPSync"))then
-				//Ranks
-				//Permissions
-				//Rank ID and Permission ID
-				//Servers
-				//Server id and Permission ID
-			end*/
+		print("[MSync] Connected to database")
+		print("[MSync] Checking database\n")
+		-- TODO move into the SQL part
+		if(table.HasValue(MSync.Settings.EnabledModules,"MRSync"))then
+			local MRSyncCT  = server:query( "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` (`steamid` varchar(20) NOT NULL, `groups` varchar(30) NOT NULL, `servergroup` varchar(30) NOT NULL)" )
+			MRSyncCT.onError = function(Q,Err) print("[MRSync] Failed to create table: " .. Err) end
+			MRSyncCT:start()
+		end
+		if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
+			// SteamID; Banning Admin;Reason;Ban Date;Duration
+			local MBSyncCT  = server:query( "CREATE TABLE IF NOT EXISTS `" .. tableName .. "` (`steamid` varchar(20) NOT NULL,`nickname` varchar(30) NOT NULL, `admin` varchar(30) NOT NULL, `reason` varchar(30) NOT NULL,`ban_date` INT NOT NULL ,`duration` INT NOT NULL, UNIQUE KEY `steamid_UNIQUE` (`steamid`))" )
+			MBSyncCT.onError = function(Q,Err) print("[MBSync] Failed to create table: " .. Err) end
+			MBSyncCT:start()
+		end
+		/*if(table.HasValue(MSync.Settings.EnabledModules,"MPSync"))then
+			//Ranks
+			//Permissions
+			//Rank ID and Permission ID
+			//Servers
+			//Server id and Permission ID
+		end*/
 	end
 	 
 	mrsyncconnect()

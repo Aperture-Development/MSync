@@ -1,12 +1,13 @@
 if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then	
 	print("[MBSync] Loading...")
 	-- TODO move name of the table elsewhere (settings?)
+	MSync.BanTable = "mbsync"
 	-- TODO duplicate code in AddBan and AddBanID - can be wrapped
 	function MSync.AddBan(ply,reason,admin,duration)
 		local BanPlayer = ply:GetName()
 		local BanningAdmin = admin:GetName()
 		local QbanAdd = MSync.DB:prepare([[
-			INSERT INTO `mbsync` (`steamid`, `admin`, `nickname`, `reason`, `ban_date`, `duration`)
+			INSERT INTO `]] .. MSync.BanTable .. [[` (`steamid`, `admin`, `nickname`, `reason`, `ban_date`, `duration`)
 			VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `admin`=VALUES(admin), `reason`=VALUES(reason), `ban_date`=VALUES(ban_date), `duration`=VALUES(duration)"
 		]])
 		QbanAdd:setString(1, ply:SteamID())
@@ -33,7 +34,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 	
 	function MSync.AddBanID(ply,reason,admin,duration)
 		local QbanIDAdd = MSync.DB:prepare([[
-			INSERT INTO `mbsync` (`steamid`, `admin`,`nickname`, `reason`, `ban_date`, `duration`) VALUES (?, ?, ?, ?, ?, ?)
+			INSERT INTO `]] .. MSync.BanTable .. [[` (`steamid`, `admin`,`nickname`, `reason`, `ban_date`, `duration`) VALUES (?, ?, ?, ?, ?, ?)
 			ON DUPLICATE KEY UPDATE `admin`=VALUES(admin), `reason`=VALUES(reason),`ban_date`=VALUES(ban_date),`duration`=VALUES(duration)
 		]])
 		QbanIDAdd:setString(1, ply)
@@ -51,7 +52,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 	end
 	
 	function MSync.RemoveBan(ply,admin)
-		local QremBan = MSync.DB:prepare("DELETE FROM `mbsync` WHERE `steamid` = ?")
+		local QremBan = MSync.DB:prepare("DELETE FROM `" .. MSync.BanTable .. "` WHERE `steamid` = ?")
 		QremBan:setString(1, ply)
 		QremBan.onSuccess = function(q)
 			MSync.PrintToAll(Color(33,255,0), "Player: " .. ply .. " got unbanned by: " .. admin:GetName())
@@ -61,7 +62,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		
 	
 	function MSync.CheckBan(ply,admin)
-		local QcheckBan = MSync.DB:prepare("SELECT * FROM `mbsync` WHERE steamid = ?")
+		local QcheckBan = MSync.DB:prepare("SELECT * FROM `" .. MSync.BanTable .. "` WHERE steamid = ?")
 		QcheckBan:setString(1, ply)
 		
 		QcheckBan.onError = function(Q,E) print("Q1") print(E) end
@@ -76,23 +77,23 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		
 		if QcheckBan:getData()[1] then
 
-			if (banTable[1].duration<=0)then
-				MSync.Print(admin,Color(160,160,0),"Player "..ply.." got banned for reason "..banTable.Reason.." by "..banTable.Admin.." permanently")
-			elseif(banTable[1].duration + banTable[1].ban_date>=os.time())then
-				MSync.Print(admin,Color(160,160,0),("Player "..ply.." got banned for reason "..banTable.reason.." by "..banTable.admin.." until "..os.date( "%H:%M - %d/%m/%Y" ,(banTable[1].duration + banTable[1].ban_date))))
+			if (banTable[1].duration <= 0)then
+				MSync.Print(admin, Color(160,160,0), "Player " .. ply .. " got banned for reason " .. banTable.Reason .. " by " .. banTable.Admin .. " permanently")
+			elseif(banTable[1].duration + banTable[1].ban_date >= os.time()) then
+				MSync.Print(admin, Color(160,160,0), ("Player " .. ply .. " got banned for reason " .. banTable.reason .. " by " .. banTable.admin .. " until " .. os.date( "%H:%M - %d/%m/%Y" , (banTable[1].duration + banTable[1].ban_date))))
 			else
-				MSync.Print(admin,Color(160,160,0),("Player "..ply.." got unbanned: Ban expired"))
-				MSync.RemoveBan(ply,admin)
+				MSync.Print(admin, Color(160,160,0), ("Player " .. ply .. " got unbanned: Ban expired"))
+				MSync.RemoveBan(ply, admin)
 			end
 		else
-			MSync.Print(admin,Color(160,160,0),("Player "..ply.." is not banned."))
+			MSync.Print(admin, Color(160,160,0), ("Player " .. ply .. " is not banned."))
 			
 		end
 		
 	end
 	
 	function MSync.GetBans()
-		local QgetBans = MSync.DB:prepare("SELECT * FROM `mbsync`")
+		local QgetBans = MSync.DB:prepare("SELECT * FROM `" .. MSync.BanTable .. "`")
 		QgetBans:start()
 		-- TODO why not use onSuccess instead of waiting?
 		QgetBans:wait()
@@ -100,7 +101,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 	end
 	
 	function MSync.CheckIfBanned(ply)
-		local QcheckIfBan = MSync.DB:prepare("SELECT * FROM `mbsync` WHERE steamid = ?")
+		local QcheckIfBan = MSync.DB:prepare("SELECT * FROM `" .. MSync.BanTable .. "` WHERE steamid = ?")
 		QcheckIfBan:setString(1, ply)
 
 		local banTable = nil
@@ -118,20 +119,19 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		
 		if QcheckIfBan:getData()[1] then
 
-			if (banTable[1].duration<=0)then
+			if (banTable[1].duration <= 0)then
 				
 				print("[MBSync] Player " .. ply .. " is banned.")
 				banTable[1].bool = false
 				return banTable[1]
 			
-			elseif(banTable[1].duration + banTable[1].ban_date>=os.time())then
+			elseif(banTable[1].duration + banTable[1].ban_date >= os.time())then
 				print("[MBSync] Player " .. ply .. " is banned.")
 				banTable[1].bool = false
 				return banTable[1]
 			else
 				print("[MBSync] Player " .. ply .. " is not banned.")
 				return true
-				
 			end
 		else
 			print("[MBSync] Player " .. ply .. " is not banned.")
