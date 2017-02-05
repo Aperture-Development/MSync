@@ -1,7 +1,7 @@
 {
-	"title"		:	"MSync - Keep everythng synchronised",
+	"title"		:	"MSync - Keep everything synchronised",
 	"type"		:	"ServerContent",
-	"tags"		:	[ "fun","build" ],
+	"tags"		:	["fun", "build"],
 	"ignore"	:
 	[
 		"*.psd",

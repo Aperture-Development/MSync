@@ -1,9 +1,12 @@
+-- TODO encapsulate os.date() formatting
+
 if CLIENT then
-	print("loaded")
-	--Declaring MSync Variable
+	print("[MSync] Loaded")
+	-- Declaring MSync Variable
 	MSync = MSync or {}
 	MSync.RFP = false
-	MSync.LocalSettings = MSync.LocalSettings or { --Set MSync.LocalSettings to MSync.LocalSettings or to Default Settings to Prevent Empty MSync.LocalSettings
+	-- TODO move this away into some shared file
+	MSync.LocalSettings = MSync.LocalSettings or { -- Set MSync.LocalSettings to MSync.LocalSettings or to Default Settings to Prevent Empty MSync.LocalSettings
 			Servergroup = "Default",
 			EnabledModules = {
 				"MRSync"
@@ -28,54 +31,55 @@ if CLIENT then
 					"drp_donator",
 					"drp_admin"
 				}
-			}
+			},
+			DBVersion = 0
 	}
-	
-	--##NET RECIEVER##
-	
+
+	-- ##NET RECIEVER##
+
 	net.Receive("MSyncRevertSettings", function( len, ply )
-			MSync.Chat(Color(255,255,255),"Retrived Data from Server! (A1)")
+			MSync.Chat(Color(255,255,255),"Retrieved data from server! (A1)")
 			MSync.LocalSettings = net.ReadTable()
 			MSync.RefreshPanel()
-			
+
 	end)
-	
+
 	net.Receive("MSyncChatPrint", function( len, ply )
-			MSync.Chat(net.ReadColor() ,net.ReadString())		
+			MSync.Chat(net.ReadColor() ,net.ReadString())
 	end)
-	
+
 	net.Receive("MSyncRevertBans", function( len, ply )
-			MSync.Chat(Color(255,255,255),"Retrived Bans from Server! (A1)")
+			MSync.Chat(Color(255,255,255),"Retrieved bans from server! (A1)")
 			MSync.LocalBans = net.ReadTable()
 			AddBanTable()
-			
+
 	end)
-	--##NET TRANSMITTER FUNCTIONS##
-	
+	-- ##NET TRANSMITTER FUNCTIONS##
+
 	function MSync.SendSettings()
-		MSync.Chat(Color(255,255,255),"Sending Data to Server! (A1)")
+		MSync.Chat(Color(255,255,255),"Sending data to server! (A1)")
 		net.Start( "MSyncTableSend" )
 			net.WriteTable( MSync.LocalSettings )
 			net.WriteEntity( LocalPlayer() )
 		net.SendToServer()
 	end
-	
+
 	function MSync.GetBans()
-		MSync.Chat(Color(255,255,255),"Getting Bans from Server! (A1)")
+		MSync.Chat(Color(255,255,255),"Retrieving bans from server! (A1)")
 		net.Start( "MSyncGetBans" )
 			net.WriteEntity( LocalPlayer() )
 		net.SendToServer()
 	end
-	
+
 	function MSync.GetSettings()
-		MSync.Chat(Color(255,255,255),"Retriving Data from Server! (A1)")
+		MSync.Chat(Color(255,255,255),"Retrieving data from server! (A1)")
 		net.Start( "MSyncGetSettings" )
 			net.WriteEntity( LocalPlayer() )
 		net.SendToServer()
-	end	
-	
-	--##XGUI FUNCTIONS##
-	
+	end
+
+	-- ##XGUI FUNCTIONS##
+
 	function MSync.RefreshPanel()
 		if not(MSync.RFP)then
 			MSync.MySQL.init()
@@ -88,7 +92,7 @@ if CLIENT then
 			HidePanel(MSync.MySQL)
 			MSync.settingList:Clear()
 			MSync.settingList:AddLine( "MySQL" )
-			MSync.settingList:AddLine( "Modules" ) 
+			MSync.settingList:AddLine( "Modules" )
 			AddTable(MSync.LocalSettings.EnabledModules,MSync.settingList)
 			MSync.Modules.enabledModulesList:Clear()
 			MSync.Modules.disabledModulesList:Clear()
@@ -108,7 +112,7 @@ if CLIENT then
 			MSync.MySQL.Servergrp:SetText(MSync.LocalSettings.Servergroup)
 			MSync.settingList:Clear()
 			MSync.settingList:AddLine( "MySQL" )
-			MSync.settingList:AddLine( "Modules" ) 
+			MSync.settingList:AddLine( "Modules" )
 			AddTable(MSync.LocalSettings.EnabledModules,MSync.settingList)
 			MSync.Modules.enabledModulesList:Clear()
 			MSync.Modules.disabledModulesList:Clear()
@@ -120,9 +124,9 @@ if CLIENT then
 			AddTable(MSync.LocalSettings.mrsync.AllServerRanks,MSync.MRSync.AllServerTable)
 		end
 	end
-	
-	--##UTIL FUNCTIONS##
-	
+
+	-- ##UTIL FUNCTIONS##
+
 	function MSync.Chat(col, text)
 		chat.AddText(Color(255,255,255),"[",Color(120,0,0),"MSync",Color(255,255,255),"]",col,text)
 	end
@@ -150,7 +154,7 @@ if CLIENT then
 			end
 		end
 	end
-	
+
 	function AddBanTable()
 		MSync.MBSync.Table:Clear()
 		for k, v in pairs( MSync.LocalBans ) do
@@ -163,7 +167,7 @@ if CLIENT then
 			end
 		end
 	end
-	
+
 	function MSync.BanTableUnban(term)
 		if not (ULib.isValidSteamID(term)) then
 			for k, v in pairs( MSync.LocalBans ) do
@@ -175,7 +179,7 @@ if CLIENT then
 			RunConsoleCommand("ulx","unban",term )
 		end
 	end
-	
+
 	function SearchBanTable(searchterm)
 		MSync.MBSync.Table:Clear()
 		if(ULib.isValidSteamID(string.upper( searchterm )))then
@@ -193,5 +197,5 @@ if CLIENT then
 		end
 	end
 
-	
+
 end

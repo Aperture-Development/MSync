@@ -5,7 +5,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		function MSync.banid( calling_ply, steamid, minutes, reason )
 			steamid = steamid:upper()
 			if not ULib.isValidSteamID( steamid ) then
-				ULib.tsayError( calling_ply, "Invalid steamid." )
+				ULib.tsayError( calling_ply, "Invalid SteamID." )
 				return
 			end
 
@@ -17,26 +17,27 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 					break
 				end
 			end
-
-			MSync.AddBanID(steamid,reason,calling_ply,minutes)
+			MSync.AddBan(steamid, "(Unknown)", nil, "(Unknown)", reason, minutes)
 			
 		end
 
 		local MBSyncbanid = ulx.command( CATEGORY_NAME, "ulx banid", MSync.banid, "!banid" )
-		MBSyncbanid:addParam{ type=ULib.cmds.StringArg, hint="steamid" }
+		MBSyncbanid:addParam{ type=ULib.cmds.StringArg, hint="SteamID" }
 		MBSyncbanid:addParam{ type=ULib.cmds.NumArg, hint="minutes, 0 for perma", ULib.cmds.optional, ULib.cmds.allowTimeString, min=0 }
 		MBSyncbanid:addParam{ type=ULib.cmds.StringArg, hint="reason", ULib.cmds.optional, ULib.cmds.takeRestOfLine, completes=ulx.common_kick_reasons }
 		MBSyncbanid:defaultAccess( ULib.ACCESS_SUPERADMIN )
-		MBSyncbanid:help( "[MBSync] Bans steamid." )
+		MBSyncbanid:help( "[MBSync] Bans SteamID." )
 
 		function MSync.ban( calling_ply, target_ply, minutes, reason )
 			if target_ply:IsBot() then
-				ULib.tsayError( calling_ply, "Cannot ban a bot", true )
+				ULib.tsayError( calling_ply, "You cannot ban a bot.", true )
 				return
 			end
-
-			
-			MSync.AddBan(target_ply,reason,calling_ply,minutes)
+			if MSync:IsValidPlayer(calling_ply) then
+				MSync.AddBan(target_ply:SteamID(), target_ply:GetName(), calling_ply:SteamID(), calling_ply:GetName(), reason, minutes)
+			else
+				MSync.AddBan(target_ply:SteamID(), target_ply:GetName(), "(Unknown)", "(Console)", reason, minutes)
+			end
 		end
 
 		local MBSyncban = ulx.command( CATEGORY_NAME, "ulx ban", MSync.ban, "!ban" )
@@ -50,38 +51,38 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 		function MSync.unban( calling_ply, steamid )
 			steamid = steamid:upper()
 			if not ULib.isValidSteamID( steamid ) then
-				ULib.tsayError( calling_ply, "Invalid steamid." )
+				ULib.tsayError( calling_ply, "Invalid SteamID." )
 				return
 			end
 
 			MSync.RemoveBan(steamid,calling_ply)
 		end
 		local MBSyncunban = ulx.command( CATEGORY_NAME, "ulx unban", MSync.unban,"!unban" )
-		MBSyncunban:addParam{ type=ULib.cmds.StringArg, hint="steamid" }
+		MBSyncunban:addParam{ type=ULib.cmds.StringArg, hint="SteamID" }
 		MBSyncunban:defaultAccess( ULib.ACCESS_ADMIN )
-		MBSyncunban:help( "[MBSync] Unbans steamid." )
+		MBSyncunban:help( "[MBSync] Unbans SteamID." )
 		
 		function MSync.CheckPlayerBan(calling_ply, steamid)
 		
 			steamid = steamid:upper()
 			if not ULib.isValidSteamID( steamid ) then
-				ULib.tsayError( calling_ply, "Invalid steamid." )
+				ULib.tsayError( calling_ply, "Invalid SteamID." )
 				return
 			end
 			
 			MSync.CheckBan(steamid,calling_ply)
 		end
 		local MBSyncbancheck = ulx.command(CATEGORY_NAME, "ulx checkban", MSync.CheckPlayerBan, "!checkban" )
-		MBSyncbancheck:addParam{ type=ULib.cmds.StringArg, hint="steamid" }
+		MBSyncbancheck:addParam{ type=ULib.cmds.StringArg, hint="SteamID" }
 		MBSyncbancheck:defaultAccess( ULib.ACCESS_ADMIN )
-		MBSyncbancheck:help( "[MBSync] Check if target is Banned." )
+		MBSyncbancheck:help( "[MBSync] Check if target is banned." )
 		
 		print("[MBSync] Overwritten ULX Commands")
 	end
 
 	function MSync.CheckULX()
 		if not ulx.banid or not ulx.ban then
-			print("[MBSync] ULX not Loaded! Rechecking in 5 Seconds!")
+			print("[MBSync] ULX not loaded! Rechecking in 5 seconds!")
 			timer.Simple(5,function() MSync.CheckULX() end)
 		else
 			MSync.CommandOverwrite()

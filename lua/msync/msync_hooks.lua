@@ -1,42 +1,23 @@
-if(table.HasValue(MSync.Settings.EnabledModules,"MRSync"))then
+if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 	hook.Add("PlayerInitialSpawn", "MRSyncSyncUser", MSync.LoadRank)
 	hook.Add("PlayerDisconnected", "MRSyncSaveUser", MSync.SaveRank)
 	hook.Add("ShutDown", "MRSyncSaveAllUsers", MSync.SaveAllRanks)
 end
-if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
-	hook.Add( "CheckPassword", "MSyncBanCheck", function( steamID64 )
-		local MBSyncTbl = MSync.CheckIfBanned(util.SteamIDFrom64(steamID64))
-		local time = {}
-		if (MBSyncTbl==true) then
-			return nil
-		else
-			if(MBSyncTbl.duration<=0)then
-				time.duration = "Permanent"
-				time.unban = "Never"
-			else
-				time.duration 	= (MBSyncTbl.duration/60).." Minutes "
-				time.unban		= os.date( "%H:%M - %d/%m/%Y" ,(MBSyncTbl.duration + MBSyncTbl.ban_date))
-			end
-			
-			return false , ("[MBSync] You are Banned! \n Reason: "..MBSyncTbl.reason.."\n Duration: "..time.duration.." \n Banned by: "..MBSyncTbl.admin.." \n Unban Date: "..time.unban)
+
+if(table.HasValue(MSync.Settings.EnabledModules, "MBSync")) then
+	hook.Add( "CheckPassword", "MSyncBanCheck", function(steamID64)
+		local MBSyncTbl = MSync.CheckIfBannedSync(util.SteamIDFrom64(steamID64))
+		if MBSyncTbl then
+			return false, (MSync.GetBannedMessage(MBSyncTbl.reason, MBSyncTbl.ban_date, MBSyncTbl.duration, MBSyncTbl.staff_name))
 		end
 	end)
-	
-	hook.Add( "PlayerInitialSpawn", "MSyncBanCheckBackup", function( ply )
-		local MBSyncTbl = MSync.CheckIfBanned(ply:SteamID())
-		local time = {}
-		if (MBSyncTbl==true) then
-			print("[MBSync] Backup Check: "..ply:GetName().." is not Banned!")
-		else
-			if(MBSyncTbl.duration<=0)then
-				time.duration = "Permanent"
-				time.unban = "Never"
-			else
-				time.duration 	= (MBSyncTbl.duration/60).." Minutes "
-				time.unban		= os.date( "%H:%M - %d/%m/%Y" ,(MBSyncTbl.duration + MBSyncTbl.ban_date))
+
+	hook.Add( "PlayerInitialSpawn", "MSyncBanCheckBackup", function(ply)
+		local MBSyncTbl = MSync.CheckIfBanned(ply:SteamID(), function(banTable)
+			if banTable then
+				print("[MBSync] Backup check: " .. ply:GetName() .. " is banned!")
+				ply:Kick(MSync.GetBannedMessage(MBSyncTbl.reason, MBSyncTbl.ban_date, MBSyncTbl.duration, MBSyncTbl.staff_name))
 			end
-			print("[MBSync] Backup Check: "..ply:GetName().." is Banned!")
-			ply:Kick("[MBSync] You are Banned! \nReason: "..MBSyncTbl.reason.."\nDuration: "..time.duration.." \nBanned by: "..MBSyncTbl.admin.." \nUnban Date: "..time.unban)
-		end
+		end)
 	end)
 end
