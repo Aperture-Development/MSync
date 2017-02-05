@@ -5,8 +5,8 @@
 if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_mysqloo_win32.dll", "LUA" ))then
 	MSync = MSync or {}
 	-- TODO move this into some shared config file or somewhere
-	MSync.TableNameBans = "mbsync_testing"
-	MSync.TableNameRanks = "mrsync_testing"
+	MSync.TableNameBans = "mbsync"
+	MSync.TableNameRanks = "mrsync"
 	local ulxsql = ulxsql or {}
 	local ULXDB = ULXDB or {}
 
