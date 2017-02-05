@@ -17,8 +17,7 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 					break
 				end
 			end
-
-			MSync.AddBanID(steamid,reason,calling_ply,minutes)
+			MSync.AddBan(steamid, "(Unknown)", nil, "(Unknown)", reason, minutes)
 			
 		end
 
@@ -34,8 +33,11 @@ if(table.HasValue(MSync.Settings.EnabledModules,"MBSync"))then
 				ULib.tsayError( calling_ply, "You cannot ban a bot.", true )
 				return
 			end
-			
-			MSync.AddBan(target_ply,reason,calling_ply,minutes)
+			if MSync:IsValidPlayer(calling_ply) then
+				MSync.AddBan(target_ply:SteamID(), target_ply:GetName(), calling_ply:SteamID(), calling_ply:GetName(), reason, minutes)
+			else
+				MSync.AddBan(target_ply:SteamID(), target_ply:GetName(), "(Unknown)", "(Console)", reason, minutes)
+			end
 		end
 
 		local MBSyncban = ulx.command( CATEGORY_NAME, "ulx ban", MSync.ban, "!ban" )
