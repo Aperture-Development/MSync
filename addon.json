@@ -1,0 +1,11 @@
+{
+	"title"		:	"MSync - Keep everythng synchronised",
+	"type"		:	"ServerContent",
+	"tags"		:	[ "fun","build" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.vcproj",
+		"*.svn*"
+	]
+}
