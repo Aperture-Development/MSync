@@ -1,3 +1,4 @@
+# WARNING! DO NOT USE IT ON YOUR SERVER! THIS REP IS JUST FOR TESTING#
 # MSync (**M**ySQL **Sync**hronisation)
 
 This is a free all around solution for multi-server communities.
