@@ -157,8 +157,7 @@ function MSync.GetBannedMessage(reason, ban_timestamp, duration_seconds, staffNa
 	"Banned by: " .. staffName .. "\n" ..
 	"Duration: " .. MSync.FormatTime(duration_seconds) .. "\n" ..
 	"Lifted in: " .. MSync.FormatTime((ban_timestamp + duration_seconds) - os.time()) .. "\n" ..
-	"------------------------\n" ..
-	"You may appeal your ban at http://unitedponyrepublic.eu"
+	"------------------------" 
 end
 
 -- Converts seconds to human-readable string
