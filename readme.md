@@ -58,7 +58,7 @@ After that you need to setup a database for your ranks and/or bans.
 
 ## Support/Bugs
 
-Please use my support ticked system at: https://support.aperture-hosting.de/
+Please use my support ticked system at: https://www.aperture-hosting.de/ticketsystem/
 Or mail me under: Webmaster@Rainbow-Dash.com
 
 ## Other
