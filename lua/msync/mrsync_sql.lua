@@ -56,7 +56,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 
 			local InsertQ = MSync.DB:query([[INSERT into `]]..MSync.TableNameRanks..[[` 
 				(`steamid`, `groups`, `servergroup`) 
-				VALUES (']]..plyTable.steamid..[[', ']]..plyTable.rank..[[',']]..serverGroup..[[') 
+				VALUES (']]..plyTable.steamid..[[', ']]..MSync.DB:escape(plyTable.rank)..[[',']]..MSync.DB:escape(serverGroup)..[[') 
 				ON DUPLICATE KEY UPDATE groups=VALUES(groups)]]
 			)
 			transaction:addQuery(InsertQ)
@@ -97,7 +97,7 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 
 				local InsertQ = MSync.DB:query([[INSERT into `]]..MSync.TableNameRanks..[[` 
 					(`steamid`, `groups`, `servergroup`) 
-					VALUES (']]..v:SteamID64()..[[', ']]..v:GetUserGroup()..[[',']]..serverGroup..[[') 
+					VALUES (']]..v:SteamID64()..[[', ']]..MSync.DB:escape(v:GetUserGroup())..[[',']]..MSync.DB:escape(serverGroup)..[[') 
 					ON DUPLICATE KEY UPDATE groups=VALUES(groups)]]
 				)
 				transaction:addQuery(InsertQ)
