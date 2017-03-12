@@ -3,10 +3,10 @@ MSync.Bans = MSync.Bans or {}
 MSync.Settings = MSync.Settings or {}
 MSync.ULX = MSync.ULX or {}
 MSync.AllowedGroups = MSync.AllowedGroups or {}
-MSync.version = "A 1.3"
-MSync.DBVersion = 1.3
+MSync.version = "A 1.4"
+MSync.DBVersion = 1.4
 MSync.MBsyncVersion = "A 1.0"
-MSync.MRsyncVersion = "A 1.3"
+MSync.MRsyncVersion = "A 1.5"
 MSync.xgui_panelVersion = "A 1.5"
 
 concommand.Add( "msync_version", function( ply, cmd, args )

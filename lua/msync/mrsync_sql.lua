@@ -1,10 +1,10 @@
 if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 	print("[MRSync] Loading...")
-
+	local serverGroup = serverGroup or MSync.Settings.Servergroup
 	-- Function to load a Players Rank
 	function MSync.LoadRank(ply)
 		print("[MRSync] Loading player rank...")
-		local queryQ = MSync.DB:query("SELECT * FROM `mrsync` WHERE steamid = '" .. ply:SteamID() .. "' AND (`servergroup` = '" .. MSync.Settings.Servergroup .. "' OR `servergroup` = 'allserver')")
+		local queryQ = MSync.DB:query([[SELECT * FROM `]]..MSync.TableNameRanks..[[` WHERE steamid = ']] .. ply:SteamID64() .. [[' AND (`servergroup` = ']] .. MSync.Settings.Servergroup .. [[' OR `servergroup` = 'allserver')]])
 		queryQ.onData = function(Q,D)
 			queryQ.onSuccess = function(q)
 				if checkQuery(q) then
@@ -13,19 +13,10 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 					if( ply:IsUserGroup(D.groups)) then
 
 						print("[MRSync] User "..ply:GetName().." is already in their group!")
-
-					elseif(D.groups=="user") then
-
-						RunConsoleCommand( 'ulx', 'removeuserid', ply:SteamID() )
-						print("[MRSync] Adding "..ply:GetName().." to group "..D.groups)
-						MSync.PrintToAll(Color(255,255,255),"Adding "..ply:GetName().." to group "..D.groups)
-
 					else
-
+						ply:SetUserGroup( D.groups )
 						print("[MRSync] Adding "..ply:GetName().." to group "..D.groups)
-						RunConsoleCommand( 'ulx', 'adduserid', ply:SteamID(),D.groups )
 						MSync.PrintToAll(Color(255,255,255),"Adding "..ply:GetName().." to group "..D.groups)
-
 					end
 				end
 			end
@@ -38,34 +29,44 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 	function MSync.SaveRank(ply)
 		print("[MRSync] Saving player rank...")
 		local plyTable = {
-			steamid = ply:SteamID(),
+			steamid = ply:SteamID64(),
 			rank = ply:GetUserGroup(),
 			name = ply:GetName()
 		}
-
-		local deleteQ = MSync.DB:query("DELETE FROM `mrsync` WHERE `steamid` = '" .. plyTable.steamid .. "' AND (`servergroup` = '" .. MSync.Settings.Servergroup .. "' OR `servergroup` = 'allserver')")
-		deleteQ.onSuccess = function(q)
-			if checkQuery(q) then
-				print ("[MRSync] User "..plyTable.name.." already exists")
-			end
+		
+		local transaction = MSync.DB:createTransaction()
+		
+		if(table.HasValue(MSync.Settings.mrsync.AllServerRanks,plyTable.rank))then
+		
+			serverGroup = "allserver"
+			
+			local preventDoubleEntrys  = MSync.DB:query([[DELETE FROM `]]..MSync.TableNameRanks..[[` WHERE steamid=']]..plyTable.steamid..[[' and not servergroup='allserver']])
+			transaction:addQuery(preventDoubleEntrys)
+				
+		else
+		
+			serverGroup = MSync.Settings.Servergroup
+			
+			local preventDoubleEntrys  = MSync.DB:query([[DELETE FROM `]]..MSync.TableNameRanks..[[` WHERE steamid=']]..plyTable.steamid..[[' and servergroup='allserver']])
+			transaction:addQuery(preventDoubleEntrys)
+			
 		end
-		deleteQ:start()
 
+		if not(table.HasValue(MSync.Settings.mrsync.IgnoredRanks,plyTable.rank)) then
 
-		if not(table.HasValue(MSync.Settings.mrsync.AllServerRanks,plyTable.rank)) and not(table.HasValue(MSync.Settings.mrsync.IgnoredRanks,plyTable.rank)) then
-
-			local InsertQ = MSync.DB:query("INSERT INTO `mrsync` (`steamid`, `groups`, `servergroup`) VALUES ('"..plyTable.steamid.."', '"..plyTable.rank.."','"..MSync.Settings.Servergroup.."')")
-			InsertQ.onError = function(Q,E) print("Q1") print(E) end
-			InsertQ:start()
-			print ("[MRSync] User "..plyTable.name.." got saved")
-
-		elseif(table.HasValue(MSync.Settings.mrsync.AllServerRanks,plyTable.rank)) and not(table.HasValue(MSync.Settings.mrsync.IgnoredRanks,plyTable.rank)) then
-
-			local InsertQ = MSync.DB:query("INSERT INTO `mrsync` (`steamid`, `groups`, `servergroup`) VALUES ('"..plyTable.steamid.."', '"..plyTable.rank.."','allserver')")
-			InsertQ.onError = function(Q,E) print("Q1") print(E) end
-			InsertQ:start()
-			print ("[MRSync] User "..plyTable.name.." SID: "..ply:SteamID().." got saved [A]")
-
+			local InsertQ = MSync.DB:query([[INSERT into `]]..MSync.TableNameRanks..[[` 
+				(`steamid`, `groups`, `servergroup`) 
+				VALUES (']]..plyTable.steamid..[[', ']]..plyTable.rank..[[',']]..serverGroup..[[') 
+				ON DUPLICATE KEY UPDATE groups=VALUES(groups)]]
+			)
+			transaction:addQuery(InsertQ)
+			
+			transaction.onError = function (tr, err) print("[MRSync] User creation/update failed: " .. err) end
+			transaction.onSuccess = function ()
+				print ("[MRSync] User "..plyTable.name.." got saved")
+			end
+			transaction:start()
+			
 		end
 
 	end
@@ -73,29 +74,40 @@ if(table.HasValue(MSync.Settings.EnabledModules, "MRSync")) then
 	function MSync.SaveAllRanks()
 		print("[MRSync] Saving player ranks...")
 		local plyTable = player.GetAll()
+		
 		for k,v in pairs(plyTable) do
-
-			local deleteQ = MSync.DB:query("DELETE FROM `mrsync` WHERE `steam` = '" .. v:SteamID() .. "' AND `servergroup` = '" .. MSync.Settings.Servergroup .. "' OR `servergroup` = 'allserver'")
-			deleteQ.onSuccess = function(q)
-				if checkQuery(q) then
-					print("[MRSync] Saving users...")
-				end
+			
+			local transaction = MSync.DB:createTransaction()
+			
+			if(table.HasValue(MSync.Settings.mrsync.AllServerRanks,v:GetUserGroup()))then
+				serverGroup = "allserver"
+				
+				local preventDoubleEntrys  = MSync.DB:query([[DELETE FROM `]]..MSync.TableNameRanks..[[` WHERE steamid=']]..v:SteamID64()..[[' and not servergroup='allserver']])
+				transaction:addQuery(preventDoubleEntrys)
+				
+			else
+				serverGroup = MSync.Settings.Servergroup
+				
+				local preventDoubleEntrys  = MSync.DB:query([[DELETE FROM `]]..MSync.TableNameRanks..[[` WHERE steamid=']]..v:SteamID64()..[[' and servergroup='allserver']])
+				transaction:addQuery(preventDoubleEntrys)
+				
 			end
-			deleteQ:start()
 
+			if not(table.HasValue(MSync.Settings.mrsync.IgnoredRanks,plyTable.rank)) then
 
-			if not(table.HasValue(MSync.Settings.mrsync.AllServerRanks,v:GetUserGroup())) and not(table.HasValue(MSync.Settings.mrsync.IgnoredRanks,v:GetUserGroup())) then
-
-				local InsertQ = MSync.DB:query("INSERT INTO `mrsync` (`steamid`, `groups`, `servergroup`) VALUES ('"..v:SteamID().."', '"..v:GetUserGroup().."','"..MSync.Settings.Servergroup.."')")
-				InsertQ.onError = function(Q,E) print("Q1") print(E) end
-				InsertQ:start()
-
-			elseif(table.HasValue(MSync.Settings.mrsync.AllServerRanks,v:GetUserGroup())) and not(table.HasValue(MSync.Settings.mrsync.IgnoredRanks,v:GetUserGroup())) then
-
-				local InsertQ = MSync.DB:query("INSERT INTO `mrsync` (`steamid`, `groups`, `servergroup`) VALUES ('"..v:SteamID().."', '"..v:GetUserGroup().."','allserver')")
-				InsertQ.onError = function(Q,E) print("Q1") print(E) end
-				InsertQ:start()
-
+				local InsertQ = MSync.DB:query([[INSERT into `]]..MSync.TableNameRanks..[[` 
+					(`steamid`, `groups`, `servergroup`) 
+					VALUES (']]..v:SteamID64()..[[', ']]..v:GetUserGroup()..[[',']]..serverGroup..[[') 
+					ON DUPLICATE KEY UPDATE groups=VALUES(groups)]]
+				)
+				transaction:addQuery(InsertQ)
+			
+				transaction.onError = function (tr, err) print("[MRSync] User creation/update failed: " .. err) end
+				transaction.onSuccess = function ()
+					print ("[MRSync] User "..v:GetName().." got saved")
+				end
+				transaction:start()
+				
 			end
 		end
 

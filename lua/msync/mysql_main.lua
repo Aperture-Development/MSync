@@ -31,6 +31,22 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 	function MSync.checkTables(server)
 		print("[MSync] Connected to database")
 		print("[MSync] Checking database")
+		
+		
+		local MSync_Version_Table  = server:query([[
+			CREATE TABLE IF NOT EXISTS `msync_db_version` (
+				`version` float NOT NULL
+			);
+			SELECT * FROM `msync_db_version`
+		]])
+		MSync_Version_Table.onError = function(Q,E) print("Q1") print(E) end
+		MSync_Version_Table:start()
+		--MSync_Version_Table:wait()
+		
+		if MSync_Version_Table:getData() then
+			MSync.Settings.DBVersion = MSync_Version_Table:getData()[1]
+		end
+		
 
 		local transaction = server:createTransaction()
 
@@ -45,7 +61,17 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 				]])
 				transaction:addQuery(MRSyncCT)
 			end
+			
+			if(MSync.Settings.DBVersion < 1.1)then
+				local MRSyncUpdateDB  = server:query([[
+					ALTER TABLE `]]..MSync.TableNameRanks..[[` 
+					ADD UNIQUE INDEX `unq_user` (`steamid` ASC, `servergroup` ASC)
+				]])
+				transaction:addQuery(MRSyncUpdateDB)
+				print("[MRSync] Going to update DB structure to v1.1")
+			end
 		end
+		
 
 		if(table.HasValue(MSync.Settings.EnabledModules, "MBSync")) then
 
@@ -64,6 +90,7 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 				transaction:addQuery(MBSyncCT)
 				print("[MBSync] Going to update DB structure to v1.0")
 			end
+			
 
 			if (MSync.Settings.DBVersion < 1.1) then
 				-- Add `admin_sid` column if it doesn't already exist.
@@ -133,6 +160,13 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 			end
 			transaction:start()
 		end
+		
+		local MSync_Version_Table  = server:query([[
+			REPLACE INTO `msync_db_version` (version) VALUES(]]..MSync.DBVersion..[[);			
+		]])
+		MSync_Version_Table.onError = function(Q,E) print("Q1") print(E) end
+		MSync_Version_Table:start()
+		--MSync_Version_Table:wait()
 	end
 
 	MSync.Connect()
