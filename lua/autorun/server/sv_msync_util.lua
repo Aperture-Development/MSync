@@ -3,10 +3,12 @@ MSync.Bans = MSync.Bans or {}
 MSync.Settings = MSync.Settings or {}
 MSync.ULX = MSync.ULX or {}
 MSync.AllowedGroups = MSync.AllowedGroups or {}
-MSync.version = "A 1.4"
-MSync.DBVersion = 1.4
-MSync.MBsyncVersion = "A 1.0"
-MSync.MRsyncVersion = "A 1.5"
+MSync.version = "A 1.5"
+MSync.DBVersion = 1.5
+MSync.RDBVersion = 1.4
+MSync.BDBVersion = 1.4
+MSync.MBsyncVersion = "A 1.2"
+MSync.MRsyncVersion = "B 1.6"
 MSync.xgui_panelVersion = "A 1.5"
 
 concommand.Add( "msync_version", function( ply, cmd, args )
@@ -52,7 +54,9 @@ function MSync.load()
 					"drp_admin"
 				}
 			},
-			DBVersion = 0
+			DBVersion = 0,
+			RDBVersion = 0,
+			BDBVersion = 0
 		}
 
 		file.Write( "msync/settings.txt", util.TableToJSON( MSync.Settings, true ))
@@ -219,3 +223,4 @@ function MSync.IsValidPlayer(ply)
 end
 
 hook.Add( "Initialize", "MSync_Load", MSync.load )
+hook.Add("ShutDown", "MRSyncSaveAllUsers", MSync.SaveSettings)
