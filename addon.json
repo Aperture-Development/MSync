@@ -6,6 +6,8 @@
 	[
 		"*.psd",
 		"*.vcproj",
-		"*.svn*"
+		"*.svn*",
+		"LICENSE",
+		"readme.md"
 	]
 }

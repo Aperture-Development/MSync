@@ -56,6 +56,7 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 					MSync_Version_Table.onError = function(Q,E) print("Q1") print(E) end
 					MSync_Version_Table:start()
 					
+					MSync.Settings.DBVersion = MSync.DBVersion
 					MSync.Settings.RDBVersion = MSync.Settings.RDBVersion or 0
 					MSync.Settings.BDBVersion = MSync.Settings.BDBVersion or 0
 				end
@@ -92,6 +93,7 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 						]])
 						transaction:addQuery(MRSyncUpdateDB)
 						print("[MRSync] Going to update DB structure to v1.1")
+						MSync.Settings.RDBVersion = MSync.RDBVersion
 					end
 				end
 				
@@ -135,6 +137,7 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 						]])
 						transaction:addQuery(updateQuery)
 						print("[MBSync] Going to update DB structure to v1.1")
+						
 					end
 
 					if (MSync.Settings.BDBVersion < 1.2) then
@@ -162,8 +165,8 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 						]])
 						transaction:addQuery(updateQuery)
 						print("[MBSync] Going to update DB structure to v1.3")
+						MSync.Settings.BDBVersion = MSync.BDBVersion
 					end
-
 				end
 				--[[if(table.HasValue(MSync.Settings.EnabledModules, "MPSync")) then
 					//Ranks
@@ -177,9 +180,6 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 				if transaction:getQueries() ~= nil then
 					transaction.onError = function (tr, err) print("[MSync] Database creation/update failed: " .. err) end
 					transaction.onSuccess = function ()
-						MSync.Settings.DBVersion = MSync.DBVersion
-						MSync.Settings.RDBVersion = MSync.RDBVersion
-						MSync.Settings.BDBVersion = MSync.BDBVersion
 						MSync.SaveSettings()
 						print("[MSync] Database upgrade successful, current DB schema version " .. MSync.DBVersion)
 					end
@@ -187,9 +187,9 @@ if(file.Exists( "bin/gmsv_mysqloo_linux.dll", "LUA" ) or file.Exists( "bin/gmsv_
 				end
 				
 				local MSync_Version_Table  = server:query([[
-					INSERT into `msync_db_version` (`version`,`version_index`) VALUES (']]..MSync.DBVersion..[[','DBVersion') ON DUPLICATE KEY UPDATE version=VALUES(version);
-					INSERT into `msync_db_version` (`version`,`version_index`) VALUES (']]..MSync.RDBVersion..[[','RDBVersion') ON DUPLICATE KEY UPDATE version=VALUES(version);
-					INSERT into `msync_db_version` (`version`,`version_index`) VALUES (']]..MSync.BDBVersion..[[','BDBVersion') ON DUPLICATE KEY UPDATE version=VALUES(version)
+					INSERT into `msync_db_version` (`version`,`version_index`) VALUES (']]..MSync.Settings.DBVersion..[[','DBVersion') ON DUPLICATE KEY UPDATE version=VALUES(version);
+					INSERT into `msync_db_version` (`version`,`version_index`) VALUES (']]..MSync.Settings.RDBVersion..[[','RDBVersion') ON DUPLICATE KEY UPDATE version=VALUES(version);
+					INSERT into `msync_db_version` (`version`,`version_index`) VALUES (']]..MSync.Settings.BDBVersion..[[','BDBVersion') ON DUPLICATE KEY UPDATE version=VALUES(version)
 				]])
 				MSync_Version_Table.onError = function(Q,E) print("Q1") print(E) end
 				MSync_Version_Table:start()
