@@ -1,3 +1,5 @@
+# MSync reached its End-of-life at the 1st May 2020, with that MSync will not receive any support in the future, all support questions will be ignored and bugs will not be fixed. Please consider switching over to [MSync-2](https://github.com/Aperture-Development/MSync-2) which is the all new replacement for MSync
+
 # MSync (**M**ySQL **Sync**hronisation)
 
 This is a free all around solution for multi-server communities.
